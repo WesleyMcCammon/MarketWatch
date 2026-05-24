@@ -1,0 +1,188 @@
+﻿@using Microsoft.AspNetCore.Html
+@model List<MarketWatch.Models.CurrencyPairViewModel>
+
+@{
+    ViewData["Title"] = "Currency Dashboard";
+}
+
+<style>
+
+    .masonry-container {
+        column-count: 4;
+        column-gap: 1rem;
+    }
+
+    .masonry-item {
+        break-inside: avoid;
+        margin-bottom: 1rem;
+    }
+
+    .level-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+    }
+
+    .positive {
+        color: limegreen;
+    }
+
+    .negative {
+        color: red;
+    }
+
+    .section-title {
+        font-weight: bold;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        border-bottom: 1px solid #ddd;
+    }
+
+</style>
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        Currency Pair Dashboard
+    </h2>
+
+    <div class="masonry-container">
+
+        @foreach (var pair in Model)
+        {
+            <div class="masonry-item">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-body">
+
+                        <!-- Header -->
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+                                <h4 class="mb-0">
+                                    @pair.Symbol
+                                </h4>
+
+                                <small class="text-muted">
+                                    @pair.Description
+                                </small>
+                            </div>
+
+                            <div class="text-end">
+
+                                <div>
+                                    <strong>BID:</strong> @pair.Bid
+                                </div>
+
+                                <div>
+                                    <strong>ASK:</strong> @pair.Ask
+                                </div>
+
+                                <div class="@(pair.PercentChange >= 0 ? "positive" : "negative")">
+                                    @pair.PercentChange %
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Pivot Levels -->
+
+                        <div class="section-title">
+                            Pivot Levels
+                        </div>
+
+                        @RenderLevel("R3", pair.R3, pair.Bid)
+                        @RenderLevel("R2", pair.R2, pair.Bid)
+                        @RenderLevel("R1", pair.R1, pair.Bid)
+                        @RenderLevel("Pivot", pair.Pivot, pair.Bid)
+                        @RenderLevel("S1", pair.S1, pair.Bid)
+                        @RenderLevel("S2", pair.S2, pair.Bid)
+                        @RenderLevel("S3", pair.S3, pair.Bid)
+
+                        <!-- Value Area -->
+
+                        <div class="section-title">
+                            Value Area
+                        </div>
+
+                        @RenderLevel("VAH", pair.ValueAreaHigh, pair.Bid)
+                        @RenderLevel("POC", pair.PointOfControl, pair.Bid)
+                        @RenderLevel("VAL", pair.ValueAreaLow, pair.Bid)
+
+                        <!-- VWAP -->
+
+                        <div class="section-title">
+                            VWAP & Std Dev
+                        </div>
+
+                        @RenderLevel("VWAP", pair.VWAP, pair.Bid)
+
+                        @RenderLevel("+1 SD", pair.StdDevPlus1, pair.Bid)
+                        @RenderLevel("+2 SD", pair.StdDevPlus2, pair.Bid)
+                        @RenderLevel("+3 SD", pair.StdDevPlus3, pair.Bid)
+
+                        @RenderLevel("-1 SD", pair.StdDevMinus1, pair.Bid)
+                        @RenderLevel("-2 SD", pair.StdDevMinus2, pair.Bid)
+                        @RenderLevel("-3 SD", pair.StdDevMinus3, pair.Bid)
+
+                        <!-- Previous Day -->
+
+                        <div class="section-title">
+                            Previous Day
+                        </div>
+
+                        @RenderLevel("Prev Open", pair.PrevOpen, pair.Bid)
+                        @RenderLevel("Prev High", pair.PrevHigh, pair.Bid)
+                        @RenderLevel("Prev Low", pair.PrevLow, pair.Bid)
+                        @RenderLevel("Prev Close", pair.PrevClose, pair.Bid)
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@functions {
+
+    public IHtmlContent RenderLevel(
+        string name,
+        decimal level,
+        decimal bid)
+    {
+        var diff = bid - level;
+
+        var diffClass = diff >= 0
+            ? "positive"
+            : "negative";
+
+        return new HtmlString($@"
+
+            <div class='level-row'>
+
+                <span>{name}</span>
+
+                <span>
+                    {level:F5}
+                </span>
+
+                <span class='{diffClass}'>
+
+                    {(diff >= 0 ? "+" : "")}
+                    {diff:F5}
+
+                </span>
+
+            </div>
+
+        ");
+    }
+
+}
