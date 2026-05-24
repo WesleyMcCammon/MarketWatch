@@ -4,11 +4,12 @@
 @{
     ViewData["Title"] = "Currency Dashboard";
 }
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script src="/js/dashboard.js"></script>
 <style>
 
     .masonry-container {
-        column-count: 4;
+        column-count: 7;
         column-gap: 1rem;
     }
 
@@ -23,6 +24,17 @@
         font-size: 0.9rem;
     }
 
+    .level-row > span:nth-child(1) {
+        width: 25%;
+    }
+
+    .level-row > span:nth-child(2) {
+        width: 25%;
+    }
+
+    .level-row > span:nth-child(3) {
+        width: 25%;
+    }
     .positive {
         color: limegreen;
     }
@@ -73,11 +85,19 @@
                             <div class="text-end">
 
                                 <div>
-                                    <strong>BID:</strong> @pair.Bid
+                                    <strong>BID:</strong>
+
+                                    <span id="bid-@pair.Symbol.Replace("/", "-")">
+                                        @pair.Bid 
+                                    </span>&nbsp;
                                 </div>
 
                                 <div>
-                                    <strong>ASK:</strong> @pair.Ask
+                                    <strong>ASK:</strong>
+
+                                    <span id="ask-@pair.Symbol.Replace("/", "-")">
+                                        @pair.Ask
+                                    </span>&nbsp;
                                 </div>
 
                                 <div class="@(pair.PercentChange >= 0 ? "positive" : "negative")">
@@ -94,13 +114,13 @@
                             Pivot Levels
                         </div>
 
-                        @RenderLevel("R3", pair.R3, pair.Bid)
-                        @RenderLevel("R2", pair.R2, pair.Bid)
-                        @RenderLevel("R1", pair.R1, pair.Bid)
-                        @RenderLevel("Pivot", pair.Pivot, pair.Bid)
-                        @RenderLevel("S1", pair.S1, pair.Bid)
-                        @RenderLevel("S2", pair.S2, pair.Bid)
-                        @RenderLevel("S3", pair.S3, pair.Bid)
+                        @RenderLevel(pair.Symbol, "R3", pair.R3, pair.Bid)
+                        @RenderLevel(pair.Symbol, "R2", pair.R2, pair.Bid)
+                        @RenderLevel(pair.Symbol, "R1", pair.R1, pair.Bid)
+                        @RenderLevel(pair.Symbol, "Pivot", pair.Pivot, pair.Bid)
+                        @RenderLevel(pair.Symbol, "S1", pair.S1, pair.Bid)
+                        @RenderLevel(pair.Symbol, "S2", pair.S2, pair.Bid)
+                        @RenderLevel(pair.Symbol, "S3", pair.S3, pair.Bid)
 
                         <!-- Value Area -->
 
@@ -108,9 +128,9 @@
                             Value Area
                         </div>
 
-                        @RenderLevel("VAH", pair.ValueAreaHigh, pair.Bid)
-                        @RenderLevel("POC", pair.PointOfControl, pair.Bid)
-                        @RenderLevel("VAL", pair.ValueAreaLow, pair.Bid)
+                        @RenderLevel(pair.Symbol, "VAH", pair.ValueAreaHigh, pair.Bid)
+                        @RenderLevel(pair.Symbol, "POC", pair.PointOfControl, pair.Bid)
+                        @RenderLevel(pair.Symbol, "VAL", pair.ValueAreaLow, pair.Bid)
 
                         <!-- VWAP -->
 
@@ -118,15 +138,15 @@
                             VWAP & Std Dev
                         </div>
 
-                        @RenderLevel("VWAP", pair.VWAP, pair.Bid)
+                        @RenderLevel(pair.Symbol, "VWAP", pair.VWAP, pair.Bid)
 
-                        @RenderLevel("+1 SD", pair.StdDevPlus1, pair.Bid)
-                        @RenderLevel("+2 SD", pair.StdDevPlus2, pair.Bid)
-                        @RenderLevel("+3 SD", pair.StdDevPlus3, pair.Bid)
+                        @RenderLevel(pair.Symbol, "+1 SD", pair.StdDevPlus1, pair.Bid)
+                        @RenderLevel(pair.Symbol, "+2 SD", pair.StdDevPlus2, pair.Bid)
+                        @RenderLevel(pair.Symbol, "+3 SD", pair.StdDevPlus3, pair.Bid)
 
-                        @RenderLevel("-1 SD", pair.StdDevMinus1, pair.Bid)
-                        @RenderLevel("-2 SD", pair.StdDevMinus2, pair.Bid)
-                        @RenderLevel("-3 SD", pair.StdDevMinus3, pair.Bid)
+                        @RenderLevel(pair.Symbol, "-1 SD", pair.StdDevMinus1, pair.Bid)
+                        @RenderLevel(pair.Symbol, "-2 SD", pair.StdDevMinus2, pair.Bid)
+                        @RenderLevel(pair.Symbol, "-3 SD", pair.StdDevMinus3, pair.Bid)
 
                         <!-- Previous Day -->
 
@@ -134,10 +154,10 @@
                             Previous Day
                         </div>
 
-                        @RenderLevel("Prev Open", pair.PrevOpen, pair.Bid)
-                        @RenderLevel("Prev High", pair.PrevHigh, pair.Bid)
-                        @RenderLevel("Prev Low", pair.PrevLow, pair.Bid)
-                        @RenderLevel("Prev Close", pair.PrevClose, pair.Bid)
+                        @RenderLevel(pair.Symbol, "Prev Open", pair.PrevOpen, pair.Bid)
+                        @RenderLevel(pair.Symbol, "Prev High", pair.PrevHigh, pair.Bid)
+                        @RenderLevel(pair.Symbol, "Prev Low", pair.PrevLow, pair.Bid)
+                        @RenderLevel(pair.Symbol, "Prev Close", pair.PrevClose, pair.Bid)
 
                     </div>
 
@@ -153,36 +173,47 @@
 @functions {
 
     public IHtmlContent RenderLevel(
-        string name,
-        decimal level,
-        decimal bid)
+    string symbol,
+    string name,
+    decimal level,
+    decimal bid)
     {
         var diff = bid - level;
 
-        var diffClass = diff >= 0
-            ? "positive"
-            : "negative";
+        var diffClass =
+            diff >= 0
+                ? "positive"
+                : "negative";
+
+        var safeSymbol =
+            symbol.Replace("/", "-");
+
+        var levelId =
+            $"{safeSymbol}-{name.Replace(" ", "-")}";
 
         return new HtmlString($@"
 
-            <div class='level-row'>
+        <div class='level-row'>
 
-                <span>{name}</span>
+            <span>{name}</span>
 
-                <span>
-                    {level:F5}
-                </span>
+            <span>
+                {level:F5}
+            </span>
 
-                <span class='{diffClass}'>
+            <span
+                id='diff-{levelId}'
+                class='{diffClass}'
+                data-level='{level}'>
 
-                    {(diff >= 0 ? "+" : "")}
-                    {diff:F5}
+                {(diff >= 0 ? "+" : "")}
+                {diff:F5}
 
-                </span>
+            </span>
 
-            </div>
+        </div>
 
-        ");
+    ");
     }
 
 }
