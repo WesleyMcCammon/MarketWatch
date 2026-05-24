@@ -1,7 +1,7 @@
 # Build folders
 bin/
 obj/
-wwwroot/
+wwwroot/lib
 
 # Visual Studio
 .vs/

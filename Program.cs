@@ -1,7 +1,24 @@
+using MarketWatch.Hubs;
+using MarketWatch.Service;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
+// Enable CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowAnyOrigin(); // For dev only, restrict in production
+    });
+});
+
+
+builder.Services.AddHostedService<LiveDataService>();
 
 var app = builder.Build();
 
@@ -26,4 +43,6 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 
+
+app.MapHub<LiveDataHub>("/liveData");
 app.Run();
