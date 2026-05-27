@@ -2,9 +2,9 @@
 
 public class CurrencyPairViewModel
 {
-    public string Symbol { get; set; }
+    public string Symbol { get; set; } = string.Empty;
 
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     public decimal Bid { get; set; }
 
@@ -12,14 +12,16 @@ public class CurrencyPairViewModel
 
     public decimal PercentChange { get; set; }
 
+    public IList<IndicatorModel> IndicatorModels = new List<IndicatorModel>();
+
     // Pivot Levels
-    public decimal R3 { get; set; }
-    public decimal R2 { get; set; }
-    public decimal R1 { get; set; }
-    public decimal Pivot { get; set; }
-    public decimal S1 { get; set; }
-    public decimal S2 { get; set; }
-    public decimal S3 { get; set; }
+    //public decimal R3 { get; set; }
+    //public decimal R2 { get; set; }
+    //public decimal R1 { get; set; }
+    //public decimal Pivot { get; set; }
+    //public decimal S1 { get; set; }
+    //public decimal S2 { get; set; }
+    //public decimal S3 { get; set; }
 
     // Value Area
     public decimal ValueAreaHigh { get; set; }
@@ -42,4 +44,11 @@ public class CurrencyPairViewModel
     public decimal PrevHigh { get; set; }
     public decimal PrevLow { get; set; }
     public decimal PrevClose { get; set; }
+
+    public IndicatorModel AddIndicator(string name, string description) 
+    { 
+        var indicator = new IndicatorModel { Name = name, Description = description };
+        IndicatorModels.Add(indicator);
+        return indicator;
+    }
 }

@@ -114,13 +114,24 @@
                             Pivot Levels
                         </div>
 
-                        @RenderLevel(pair.Symbol, "R3", pair.R3, pair.Bid)
-                        @RenderLevel(pair.Symbol, "R2", pair.R2, pair.Bid)
-                        @RenderLevel(pair.Symbol, "R1", pair.R1, pair.Bid)
-                        @RenderLevel(pair.Symbol, "Pivot", pair.Pivot, pair.Bid)
-                        @RenderLevel(pair.Symbol, "S1", pair.S1, pair.Bid)
-                        @RenderLevel(pair.Symbol, "S2", pair.S2, pair.Bid)
-                        @RenderLevel(pair.Symbol, "S3", pair.S3, pair.Bid)
+                        @{
+                            var pivots = pair.IndicatorModels.Where(i => i.Name == "Pivot").First();
+                            var r3 = pivots.IndicatorModelValues.Where(pair => pair.Name == "R3").First();
+                            var r2 = pivots.IndicatorModelValues.Where(pair => pair.Name == "R2").First();
+                            var r1 = pivots.IndicatorModelValues.Where(pair => pair.Name == "R1").First();
+                            var pivot = pivots.IndicatorModelValues.Where(pair => pair.Name == "Pivot").First();
+                            var s1 = pivots.IndicatorModelValues.Where(pair => pair.Name == "S1").First();
+                            var s2 = pivots.IndicatorModelValues.Where(pair => pair.Name == "S2").First();
+                            var s3 = pivots.IndicatorModelValues.Where(pair => pair.Name == "S3").First();
+
+                            @RenderLevel(pair.Symbol, "R3", r3 != null ? r3.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "R2", r2 != null ? r2.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "R1", r1 != null ? r1.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Pivot", pivot != null ? pivot.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "S1", s1 != null ? s1.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "S2", s2 != null ? s2.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "S3", s3 != null ? s3.Value : 0m, pair.Bid)
+                        }
 
                         <!-- Value Area -->
 
@@ -128,9 +139,15 @@
                             Value Area
                         </div>
 
-                        @RenderLevel(pair.Symbol, "VAH", pair.ValueAreaHigh, pair.Bid)
-                        @RenderLevel(pair.Symbol, "POC", pair.PointOfControl, pair.Bid)
-                        @RenderLevel(pair.Symbol, "VAL", pair.ValueAreaLow, pair.Bid)
+                        @{
+                            var volumeProfile = pair.IndicatorModels.Where(i => i.Name == "Volume Profile").First();
+                            var valueAreaHigh = volumeProfile.IndicatorModelValues.Where(pair => pair.Name == "Value Area High").First();
+                            var pointOfControl = volumeProfile.IndicatorModelValues.Where(pair => pair.Name == "Point of Control").First();
+                            var valueAreaLow = volumeProfile.IndicatorModelValues.Where(pair => pair.Name == "Value Area Low").First();
+                            @RenderLevel(pair.Symbol, "VAH", valueAreaHigh != null ? valueAreaHigh.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "POC", pointOfControl != null ? pointOfControl.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "VAL", valueAreaLow != null ? valueAreaLow.Value : 0m, pair.Bid)
+                        }
 
                         <!-- VWAP -->
 
@@ -138,26 +155,42 @@
                             VWAP & Std Dev
                         </div>
 
-                        @RenderLevel(pair.Symbol, "VWAP", pair.VWAP, pair.Bid)
+                        @{
+                            var vwapIndicator = pair.IndicatorModels.Where(i => i.Name == "VWAP").First();
+                            var vwap = vwapIndicator.IndicatorModelValues.Where(pair => pair.Name == "VWAP").First();
+                            var stdDevPlus1 = vwapIndicator.IndicatorModelValues.Where(pair => pair.Name == "Std Dev +1").First();
+                            var stdDevPlus2 = vwapIndicator.IndicatorModelValues.Where(pair => pair.Name == "Std Dev +2").First();
+                            var stdDevPlus3 = vwapIndicator.IndicatorModelValues.Where(pair => pair.Name == "Std Dev +3").First();
+                            var stdDevMinus1 = vwapIndicator.IndicatorModelValues.Where(pair => pair.Name == "Std Dev -1").First();
+                            var stdDevMinus2 = vwapIndicator.IndicatorModelValues.Where(pair => pair.Name == "Std Dev -2").First();
+                            var stdDevMinus3 = vwapIndicator.IndicatorModelValues.Where(pair => pair.Name == "Std Dev -3").First();
 
-                        @RenderLevel(pair.Symbol, "+1 SD", pair.StdDevPlus1, pair.Bid)
-                        @RenderLevel(pair.Symbol, "+2 SD", pair.StdDevPlus2, pair.Bid)
-                        @RenderLevel(pair.Symbol, "+3 SD", pair.StdDevPlus3, pair.Bid)
-
-                        @RenderLevel(pair.Symbol, "-1 SD", pair.StdDevMinus1, pair.Bid)
-                        @RenderLevel(pair.Symbol, "-2 SD", pair.StdDevMinus2, pair.Bid)
-                        @RenderLevel(pair.Symbol, "-3 SD", pair.StdDevMinus3, pair.Bid)
+                            @RenderLevel(pair.Symbol, "VWAP", vwap != null ? vwap.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Std Dev +1", stdDevPlus1 != null ? stdDevPlus1.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Std Dev +2", stdDevPlus2 != null ? stdDevPlus2.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Std Dev +3", stdDevPlus3 != null ? stdDevPlus3.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Std Dev -1", stdDevMinus1 != null ? stdDevMinus1.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Std Dev -2", stdDevMinus2 != null ? stdDevMinus2.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Std Dev -3", stdDevMinus3 != null ? stdDevMinus3.Value : 0m, pair.Bid)
+                        }
 
                         <!-- Previous Day -->
 
                         <div class="section-title">
                             Previous Day
                         </div>
+                        @{
 
-                        @RenderLevel(pair.Symbol, "Prev Open", pair.PrevOpen, pair.Bid)
-                        @RenderLevel(pair.Symbol, "Prev High", pair.PrevHigh, pair.Bid)
-                        @RenderLevel(pair.Symbol, "Prev Low", pair.PrevLow, pair.Bid)
-                        @RenderLevel(pair.Symbol, "Prev Close", pair.PrevClose, pair.Bid)
+                            var prevDayOHLC = pair.IndicatorModels.Where(i => i.Name == "Prev Day OHLC").First();
+                            var prevOpen = prevDayOHLC.IndicatorModelValues.Where(pair => pair.Name == "Open").First();
+                            var prevHigh = prevDayOHLC.IndicatorModelValues.Where(pair => pair.Name == "High").First();
+                            var prevLow = prevDayOHLC.IndicatorModelValues.Where(pair => pair.Name == "Low").First();
+                            var prevClose = prevDayOHLC.IndicatorModelValues.Where(pair => pair.Name == "Close").First();
+                            @RenderLevel(pair.Symbol, "Prev Open", prevOpen != null ? prevOpen.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Prev High", prevHigh != null ? prevHigh.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Prev Low", prevLow != null ? prevLow.Value : 0m, pair.Bid)
+                            @RenderLevel(pair.Symbol, "Prev Close", prevClose != null ? prevClose.Value : 0m, pair.Bid)
+                        }
 
                     </div>
 
@@ -173,12 +206,12 @@
 @functions {
 
     public IHtmlContent RenderLevel(
-    string symbol,
-    string name,
-    decimal level,
-    decimal bid)
+        string symbol,
+        string name,
+        decimal level,
+        decimal bid)
     {
-        var diff = bid - level;
+    var diff = bid - level;
 
         var diffClass =
             diff >= 0

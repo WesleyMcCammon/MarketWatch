@@ -8,11 +8,8 @@
         "ReceivePriceUpdate",
         function (data)
         {
-            console.log("here");
             const symbol =
                 data.symbol.replace("/", "-");
-
-            // Update bid/ask
 
             const bidElement =
                 document.getElementById(
@@ -24,44 +21,44 @@
 
             if (bidElement)
             {
-                bidElement.innerText =
-                    data.bid.toFixed(5);
+                if(data.bid > 0)
+                    bidElement.innerText = data.bid.toFixed(5);
             }
 
             if (askElement)
             {
-                askElement.innerText =
-                    data.ask.toFixed(5);
+                if(data.ask > 0)
+                    askElement.innerText = data.ask.toFixed(5);
             }
 
-            // Update all distances
+            if (data.bid > 0) {
 
-            const diffElements =
-                document.querySelectorAll(
-                    `[id^='diff-${symbol}']`);
+                const diffElements =
+                    document.querySelectorAll(
+                        `[id^='diff-${symbol}']`);
 
-            diffElements.forEach(el =>
-            {
-                const level =
-                    parseFloat(
-                        el.dataset.level);
+                diffElements.forEach(el => {
+                    const level =
+                        parseFloat(
+                            el.dataset.level);
 
-                const diff =
-                    data.bid - level;
+                    const diff =
+                        data.bid - level;
 
-                // el.innerText = `${diff >= 0 ? "+" : ""}${diff.toFixed(5)}`
-                el.innerText =
-                    `${diff >= 0 ? "+" : ""}${diff.toFixed(5)}`;
+                    el.innerText =
+                        `${diff >= 0 ? "+" : ""}${diff.toFixed(5)}`;
 
-                el.classList.remove(
-                    "positive",
-                    "negative");
+                    el.classList.remove(
+                        "positive",
+                        "negative");
 
-                el.classList.add(
-                    diff >= 0
-                        ? "positive"
-                        : "negative");
-            });
+                    el.classList.add(
+                        diff >= 0
+                            ? "positive"
+                            : "negative");
+                });
+            }
+
         });
 
     connection.start();
